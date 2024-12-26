@@ -13,13 +13,13 @@ pub enum TerminalUpMsg {
 pub enum TerminalDownMsg {
     FullTermUpdate(TerminalScreen),
     BackendTermStartFailure(String),
-    TermNotStarted
+    TermNotStarted,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(crate = "serde")]
 pub struct TerminalScreen {
-    pub cols    : usize,
-    pub rows    : usize,
-    pub content : String,
+    pub cols: usize,
+    pub rows: usize,
+    pub content: String,
 }

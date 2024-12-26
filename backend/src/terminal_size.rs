@@ -1,5 +1,5 @@
-use alacritty_terminal::event::{WindowSize};
-use alacritty_terminal::grid::{Dimensions};
+use alacritty_terminal::event::WindowSize;
+use alacritty_terminal::grid::Dimensions;
 use alacritty_terminal::index::{Column, Line};
 
 #[derive(Clone, Copy, Debug)]
@@ -11,7 +11,7 @@ pub struct TerminalSize {
 }
 
 impl TerminalSize {
-    pub fn new(rows : u16, cols : u16) -> Self {
+    pub fn new(rows: u16, cols: u16) -> Self {
         Self {
             cell_width: 1,
             cell_height: 1,

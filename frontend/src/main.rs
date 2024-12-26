@@ -1,18 +1,14 @@
-use zoon::*;
 use shared::{DownMsg, UpMsg};
+use zoon::*;
 
 mod term;
 
 pub static WINDOW_SIZE: Lazy<Mutable<u32>> = Lazy::new(|| Mutable::new(0));
 
 pub static CONNECTION: Lazy<Connection<UpMsg, DownMsg>> = Lazy::new(|| {
-    Connection::new(
-        |down_msg, _| {
-            match down_msg {
-                DownMsg::TerminalDownMsg(terminal_msg) => term::msg_handler(terminal_msg),
-            }
-        }
-    )
+    Connection::new(|down_msg, _| match down_msg {
+        DownMsg::TerminalDownMsg(terminal_msg) => term::msg_handler(terminal_msg),
+    })
 });
 
 fn root() -> impl Element {
@@ -22,7 +18,6 @@ fn root() -> impl Element {
         // center
         .s(Align::center())
         .child(term::root())
-
 }
 
 fn main() {

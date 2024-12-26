@@ -19,19 +19,18 @@ async fn frontend() -> Frontend {
 }
 
 async fn up_msg_handler(req: UpMsgRequest<UpMsg>) {
-    let UpMsgRequest { up_msg, session_id, cor_id, auth_token } = req;
+    let UpMsgRequest {
+        up_msg,
+        session_id,
+        cor_id,
+        auth_token,
+    } = req;
 
     match up_msg {
-        UpMsg::TerminalUpMsg(terminal_up_msg) =>
-        {
-            term::up_msg_handler(
-                terminal_up_msg,
-                session_id,
-                cor_id,
-                auth_token).await
+        UpMsg::TerminalUpMsg(terminal_up_msg) => {
+            term::up_msg_handler(terminal_up_msg, session_id, cor_id, auth_token).await
         }
     }
-
 }
 
 #[moon::main]
