@@ -89,7 +89,7 @@ pub async fn up_msg_handler(
                         return;
                     }
                 };
-                let (event_sender, mut event_receiver) = mpsc::channel(100);
+                let (event_sender, event_receiver) = mpsc::channel(100);
                 let event_proxy = EventProxy(event_sender);
                 let term = Terminal::new::<terminal_size::TerminalSize>(
                         config,

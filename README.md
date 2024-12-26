@@ -12,14 +12,13 @@ can type into.
 
 # TODO
 
+ - [ ] handle resizing
  - [ ] handle page reloads - eject terminal if new session
  - [x] re-factor frontend so that term is effectively landing page
- - [ ] handle resizing
  - [ ] support minimal re-render only on damage
  - [ ] split lib.rs into term.rs as well
  - [ ] search for TODO within the codebase
  - [x] support multiple sessions simultaneously
- - [ ] why is first character getting consumed
  - [ ] support cursor position
  - [ ] support TAB keysends
  - [ ] only send keystrokes when in focus

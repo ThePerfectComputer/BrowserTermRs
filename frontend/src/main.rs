@@ -1,10 +1,19 @@
 use zoon::*;
-use zoon::eprintln;
-use std::rc::Rc;
+use shared::{DownMsg, UpMsg};
 
 mod term;
 
 pub static WINDOW_SIZE: Lazy<Mutable<u32>> = Lazy::new(|| Mutable::new(0));
+
+pub static CONNECTION: Lazy<Connection<UpMsg, DownMsg>> = Lazy::new(|| {
+    Connection::new(
+        |down_msg, _| {
+            match down_msg {
+                DownMsg::TerminalDownMsg(terminal_msg) => term::msg_handler(terminal_msg),
+            }
+        }
+    )
+});
 
 fn root() -> impl Element {
     El::new()

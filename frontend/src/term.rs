@@ -1,29 +1,15 @@
-use std::ops::Index;
-
-use chrono::format;
 use zoon::*;
-use zoon::{println, eprintln, *};
-use shared::{DownMsg, UpMsg};
 use shared::term::{TerminalDownMsg, TerminalScreen, TerminalUpMsg};
-// use tokio::time::timeout;
+use shared::UpMsg;
 
 static  TERMINAL_STATE: Lazy<Mutable<TerminalDownMsg>> =
     Lazy::new(|| {
         Mutable::new(TerminalDownMsg::TermNotStarted)
     });
 
-static CONNECTION: Lazy<Connection<UpMsg, DownMsg>> = Lazy::new(|| {
-    Connection::new(
-        |down_msg, _| {
-            match down_msg {
-                DownMsg::TerminalDownMsg(terminal_msg) => {
-                    TERMINAL_STATE.set(terminal_msg);
-                }
-
-            }
-        }
-    )
-});
+pub fn msg_handler(msg : TerminalDownMsg) {
+    TERMINAL_STATE.set(msg);
+}
 
 pub fn root() -> impl Element {
     term_request();
@@ -38,7 +24,6 @@ pub fn root() -> impl Element {
                 ]))
             .update_raw_el(|raw_el| {
                 raw_el.global_event_handler(|event: events::KeyDown| {
-                    println!("Pressed key: {}", &event.key());
                     send_char(
                         (&event).key().as_str(),
                         (&event).ctrl_key(),
@@ -73,9 +58,7 @@ pub fn root() -> impl Element {
 fn term_request() {
     Task::start(async {
         let up_msg = UpMsg::TerminalUpMsg(TerminalUpMsg::RequestFullTermState);
-        // let timeout_duration = Duration::from_millis(1000);
-        // let func = CONNECTION.send_up_msg(up_msg);
-        let result = CONNECTION
+        let _ = crate::CONNECTION
             .send_up_msg(up_msg.clone())
             .await;
     });
@@ -87,25 +70,16 @@ fn send_char(
     ) {
     match process_str(s, has_control) {
         Some(c) => {
-            eprintln!("Sending char: {}", c);
             Task::start(async move {
                 let up_msg = UpMsg::TerminalUpMsg(TerminalUpMsg::SendCharacter(c));
-                // debug up_msg
-                let result = CONNECTION
-                // TODO : remove clone
-                .send_up_msg(up_msg.clone())
+                let _ = crate::CONNECTION
+                .send_up_msg(up_msg)
                 .await;
-                match result {
-                    Ok(_) => {
-                        println!("Sent message: {:?}", &up_msg);
-                    }
-                    Err(error) => {
-                        eprintln!("Failed to send message: {:?}", error);
-                    }
-                };
             });
         }
-        None => {eprintln!("Not processing: {}", s)}
+        None => {
+            // eprintln!("Not processing: {}", s)
+        }
     }
 
 }
@@ -151,13 +125,13 @@ fn process_for_ctrl_char(c: char, has_ctrl : bool) -> char {
     let mut final_ctrl_char = c;
     if has_ctrl {
         if is_lowercase_alpha(c) {
-            let c_u8 = (c as u8);
+            let c_u8 = c as u8;
             let ctrl_char_u8 = c_u8 - 96;
-            final_ctrl_char = (ctrl_char_u8 as char);
+            final_ctrl_char = ctrl_char_u8 as char;
         } else if char_is_between_inclusive(c, '[', '_') {
-            let c_u8 = (c as u8);
+            let c_u8 = c as u8;
             let ctrl_char_u8 = c_u8 - 90;
-            final_ctrl_char = (ctrl_char_u8 as char);
+            final_ctrl_char = ctrl_char_u8 as char;
         }
 
     }
