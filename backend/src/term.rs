@@ -47,7 +47,7 @@ pub async fn up_msg_handler(
 ) {
     match sessions::by_session_id().wait_for(session_id).await {
         Some(session) => {
-            if term_session_exists(session_id) {
+            if term_session_already_registered_in_hashmap(session_id) {
                 let term_session = SESSIONS_V_TERM_SESSION.read().unwrap();
                 let term_session = term_session.get(&session_id).unwrap();
                 let term_session = term_session.read().unwrap();
@@ -58,7 +58,7 @@ pub async fn up_msg_handler(
                             TerminalScreen {
                                 rows: term_session.rows as usize,
                                 cols: term_session.cols as usize,
-                                content: terminal_session_to_string(&*term_session),
+                                content: full_term_state(&*term_session),
                             },
                         ));
                         session.send_down_msg(&down_msg, cor_id).await;
@@ -68,7 +68,8 @@ pub async fn up_msg_handler(
                     }
                     _ => {}
                 }
-            } else {
+            }
+            else {
                 let (rows, cols) = (24, 80);
 
                 let id = get_session_count() as u64;
@@ -147,12 +148,12 @@ fn get_session_count() -> usize {
     sessions_map.len()
 }
 
-fn term_session_exists(session_id: SessionId) -> bool {
+fn term_session_already_registered_in_hashmap(session_id: SessionId) -> bool {
     let sessions_map = SESSIONS_V_TERM_SESSION.read().unwrap();
     sessions_map.contains_key(&session_id)
 }
 
-fn terminal_session_to_string(terminal_session: &TerminalSession) -> String {
+fn full_term_state(terminal_session: &TerminalSession) -> String {
     let (rows, cols) = (terminal_session.rows, terminal_session.cols);
     let term = terminal_session.term.lock();
     let grid = term.grid().clone();
